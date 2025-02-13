@@ -19,7 +19,7 @@ Asegúrate de incluir la librería en tu `libs.versions.toml` (para Version Cata
 [versions]
 dateTime = "1.1.0"
 [libraries]
-datetime = { group = "com.blipblipcode.library", name = "datetime", version = "dateTime" }
+datetime = { group = "com.blipblipcode.DateTime", name = "Library", version = "dateTime" }
 ```
 
 Y en tu módulo de aplicación (`build.gradle.kts`):
