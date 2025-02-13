@@ -44,7 +44,7 @@ android {
 
 val embed: Configuration by configurations.creating {
     isCanBeResolved = true // Habilita la resolución
-    isCanBeConsumed = false // No se expone a otros proyectos
+    isCanBeConsumed = true // No se expone a otros proyectos
 }
 dependencies {
 

@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -26,40 +27,36 @@ class MainActivity : ComponentActivity() {
         setContent {
             DateTimeTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android ${DateTime.now().year}",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    Greeting(
-                        name = "Date format Large ${DateTime.now().format(FormatType.Large('-'))}",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    Greeting(
-                        name = "Date format Short ${DateTime.now().format(FormatType.Short('-'))}",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    Greeting(
-                        name = "Date format custom ${DateTime.now().format("yyyy-MM-dd HH:mm:ss")}",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    Greeting(
-                        name = "Add one year ${DateTime.now().addYears(1).year}",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    Greeting(
-                        name = "Add one month ${DateTime.now().addDays(1).month}",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    Greeting(
-                        name = "Add one day ${DateTime.now().addMonths(1).day}",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                    Column(Modifier.padding(innerPadding)) {
+                        Greeting(
+                            name = "Android ${DateTime.now().year}"
+                        )
+
+                        Spacer(Modifier.height(8.dp))
+                        Greeting(
+                            name = "Date format Large ${DateTime.now().format(FormatType.Large('-'))}"
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        Greeting(
+                            name = "Date format Short ${DateTime.now().format(FormatType.Short('-'))}"
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        Greeting(
+                            name = "Date format custom ${DateTime.now().format("yyyy-MM-dd HH:mm:ss")}"
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        Greeting(
+                            name = "Add one year ${DateTime.now().addYears(1).year}"
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        Greeting(
+                            name = "Add one month ${DateTime.now().addMonths(1).month}"
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        Greeting(
+                            name = "Add one day ${DateTime.now().addDays(1).day}"
+                        )
+                    }
 
 
                 }

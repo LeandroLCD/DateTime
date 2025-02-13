@@ -55,7 +55,12 @@ class DateTime private constructor(
             AndroidThreeTen.init(context)
         }
 
-        fun now(zoneId: ZoneId = ZoneId.systemDefault()): DateTime {
+        fun now(): DateTime {
+            val zoneId = ZoneId.systemDefault()
+            return DateTime(ZonedDateTime.now(zoneId))
+        }
+        fun now(timeZone: String): DateTime {
+            val zoneId = ZoneId.of(timeZone)
             return DateTime(ZonedDateTime.now(zoneId))
         }
 
