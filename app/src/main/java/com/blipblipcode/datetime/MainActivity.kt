@@ -12,9 +12,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.blipblipcode.datetime.ui.theme.DateTimeTheme
+import com.blipblipcode.library.DateTime
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        DateTime.init(this)
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
@@ -24,6 +26,7 @@ class MainActivity : ComponentActivity() {
                         name = "Android",
                         modifier = Modifier.padding(innerPadding)
                     )
+                    println(DateTime.fromString("25/03/2025"))
                 }
             }
         }
