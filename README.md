@@ -54,6 +54,10 @@ println("Fecha actual: \$now")
 val formattedDate = now.format("yyyy-MM-dd HH:mm:ss")
 println("Fecha formateada: \$formattedDate")
 ```
+```kotlin
+val formattedDate = now.format(FormatType.Short('/'))
+println("Fecha formateada: \$formattedDate")
+```
 
 ### ⏳ Calcular la diferencia entre dos fechas
 ```kotlin
