@@ -12,13 +12,13 @@ import org.threeten.bp.format.DateTimeFormatter
 import org.threeten.bp.temporal.ChronoUnit
 
 class DateTime private constructor(
-    private var year: Int,
-    private var month: Int,
-    private var day: Int,
-    private var hour: Int,
-    private var minute: Int,
-    private var second: Int,
-    private var timeZone: String
+    val year: Int,
+    val month: Int,
+    val day: Int,
+    val hour: Int,
+    val minute: Int,
+    val second: Int,
+    val timeZone: String
 ) {
     private constructor(
         zoneDateTime: ZonedDateTime
@@ -102,6 +102,11 @@ class DateTime private constructor(
             LocalDateTime.of(year, month, day, hour, minute, second).plusDays(days)
         return copy(updatedDate)
     }
+    fun addMonths(months: Long): DateTime {
+        val updatedDate =
+            LocalDateTime.of(year, month, day, hour, minute, second).plusMonths(months)
+        return copy(updatedDate)
+    }
 
     fun addYears(years: Long): DateTime {
         val updatedDate =
@@ -154,7 +159,7 @@ class DateTime private constructor(
         return "$year-${"%02d".format(month)}-${"%02d".format(day)} $hour:$minute:$second $timeZone"
     }
 
-    fun toString(formatType: FormatType): String {
+    fun format(formatType: FormatType): String {
         return when (formatType) {
             is FormatType.Large -> {
                 "${"%02d".format(day)}${formatType.delimiter}${"%02d".format(month)}${formatType.delimiter}$year $hour:$minute:$second $timeZone"
@@ -164,6 +169,23 @@ class DateTime private constructor(
                 "${"%02d".format(day)}${formatType.delimiter}${"%02d".format(month)}${formatType.delimiter}$year"
             }
         }
+    }
+
+    fun format(pattern: String): String {
+        val formatter = DateTimeFormatter.ofPattern(pattern)
+        return kotlin.runCatching {
+            formatter.format(this.toZonedDateTime())
+        }.getOrElse {
+            throw InvalidFormatException(dateString = pattern)
+        }
+    }
+
+    fun toLocalDateTime(): LocalDateTime {
+        return LocalDateTime.of(year, month, day, hour, minute, second)
+    }
+
+    fun toZonedDateTime(): ZonedDateTime {
+        return ZonedDateTime.of(year, month, day, hour, minute, second, 0, ZoneId.of(timeZone))
     }
 
     private fun copy(updatedDate: LocalDateTime): DateTime {
