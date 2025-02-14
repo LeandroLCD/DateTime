@@ -17,9 +17,11 @@ Asegúrate de incluir la librería en tu `libs.versions.toml` (para Version Cata
 
 ```toml
 [versions]
-dateTime = "1.1.0"
+dateTime = "1.1.3"
+threetenabp = "1.4.4"
 [libraries]
 datetime = { group = "com.blipblipcode.DateTime", name = "Library", version = "dateTime" }
+threetenabp = { module = "com.jakewharton.threetenabp:threetenabp", version.ref = "threetenabp" }
 ```
 
 Y en tu módulo de aplicación (`build.gradle.kts`):
@@ -27,6 +29,7 @@ Y en tu módulo de aplicación (`build.gradle.kts`):
 ```kotlin
 dependencies {
     implementation(libs.datetime)
+    implementation(libs.threetenabp)
 }
 ```
 
