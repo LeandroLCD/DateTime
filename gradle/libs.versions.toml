@@ -11,7 +11,7 @@ composeBom = "2025.02.00"
 appcompat = "1.7.0"
 threetenabp = "1.4.4"
 shadowVersion = "9.0.0-beta8"
-dateTime = "1.1.0"
+dateTime = "1.1.6"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }

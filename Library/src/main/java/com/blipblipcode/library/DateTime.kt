@@ -5,6 +5,7 @@ import com.blipblipcode.library.model.FormatType
 import com.blipblipcode.library.model.TimeSpan
 import com.blipblipcode.library.throwable.InvalidFormatException
 import com.jakewharton.threetenabp.AndroidThreeTen
+import org.threeten.bp.Instant
 import org.threeten.bp.LocalDateTime
 import org.threeten.bp.ZoneId
 import org.threeten.bp.ZonedDateTime
@@ -91,6 +92,11 @@ class DateTime private constructor(
             } ?: throw InvalidFormatException(dateString = dateString)
 
             return DateTime(ZonedDateTime.of(parsedDateTime, ZoneId.systemDefault()))
+        }
+
+        fun fromMillis(millis: Long): DateTime {
+            val zoneDateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(millis), ZoneId.systemDefault())
+            return DateTime(zoneDateTime)
         }
 
     }
