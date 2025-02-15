@@ -1,5 +1,3 @@
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
@@ -60,7 +58,7 @@ publishing {
 
             groupId = "com.github.LeandroLCD"
             artifactId = "DateTime.Librery"
-            version = "1.1.6"
+            version = "1.1.7"
         }
     }
     repositories {
