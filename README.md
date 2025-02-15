@@ -17,10 +17,10 @@ Asegúrate de incluir la librería en tu `libs.versions.toml` (para Version Cata
 
 ```toml
 [versions]
-dateTime = "1.1.3"
+dateTime = "1.1.6"
 threetenabp = "1.4.4"
 [libraries]
-datetime = { group = "com.blipblipcode.DateTime", name = "Library", version = "dateTime" }
+dateTime = { module = "com.github.LeandroLCD:DateTime", version.ref = "dateTime" }
 threetenabp = { module = "com.jakewharton.threetenabp:threetenabp", version.ref = "threetenabp" }
 ```
 
