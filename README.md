@@ -17,7 +17,7 @@ Asegúrate de incluir la librería en tu `libs.versions.toml` (para Version Cata
 
 ```toml
 [versions]
-dateTime = "1.1.6"
+dateTime = "1.1.7"
 threetenabp = "1.4.4"
 [libraries]
 dateTime = { module = "com.github.LeandroLCD:DateTime", version.ref = "dateTime" }
