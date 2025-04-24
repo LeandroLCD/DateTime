@@ -31,6 +31,10 @@ class MainActivity : ComponentActivity() {
                         Greeting(
                             name = "Android ${DateTime.now().year}"
                         )
+                        Spacer(Modifier.height(8.dp))
+                        Greeting(
+                            name = "Android ${DateTime.fromString("2025-01-17T13:06:23.222609")}"
+                        )
 
                         Spacer(Modifier.height(8.dp))
                         Greeting(

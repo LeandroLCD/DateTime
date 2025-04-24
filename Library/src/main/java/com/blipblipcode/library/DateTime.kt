@@ -50,6 +50,9 @@ class DateTime private constructor(
             "dd-MM-yyyy HH:mm",
             "yyyy-MM-dd HH:mm:ss",
             "yyyy-MM-dd HH:mm",
+            "yyyy-MM-dd'T'HH:mm:ss.SSSSSS",
+            "yyyy-MM-dd'T'HH:mm:ss.SSS",
+            "yyyy-MM-dd'T'HH:mm:ss"
         )
 
         fun init(context: Context) {
@@ -99,6 +102,14 @@ class DateTime private constructor(
             return DateTime(zoneDateTime)
         }
 
+        fun fromMillis(millis: Long, timeZone:String): DateTime {
+            try {
+                val zoneDateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(millis), ZoneId.of(timeZone))
+                return DateTime(zoneDateTime)
+            }catch (e:Exception){
+                throw InvalidFormatException(dateString = "$millis - $timeZone", cause = e)
+            }
+        }
     }
 
     fun toMillis(): Long {
