@@ -119,6 +119,13 @@ class DateTime private constructor(
         return zonedDateTime.toInstant().toEpochMilli()
     }
 
+    fun toMillis(zone: String): Long {
+        val zonedDateTime = ZonedDateTime.of(
+            year, month, day, hour, minute, second, 0, ZoneId.of(zone)
+        )
+        return zonedDateTime.toInstant().toEpochMilli()
+    }
+
     fun addDays(days: Long): DateTime {
         val updatedDate =
             LocalDateTime.of(year, month, day, hour, minute, second).plusDays(days)
