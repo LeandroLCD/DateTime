@@ -125,6 +125,12 @@ class DateTime private constructor(
         )
         return zonedDateTime.toInstant().toEpochMilli()
     }
+    fun toMillisUTC(): Long {
+        val zonedDateTime = ZonedDateTime.of(
+            year, month, day, hour, minute, second, 0, ZoneId.of("UTC")
+        )
+        return zonedDateTime.toInstant().toEpochMilli()
+    }
 
     fun addDays(days: Long): DateTime {
         val updatedDate =
