@@ -33,6 +33,8 @@ class DateTime private constructor(
         zoneDateTime.zone.id
     )
 
+    val daysInMonth = daysInMonth(this.year, this.month)
+
     init {
         require(month in 1..12) { "Invalid month: $month" }
         require(day in 1..daysInMonth(year, month)) { "Invalid day: $day" }
@@ -54,6 +56,7 @@ class DateTime private constructor(
             "yyyy-MM-dd'T'HH:mm:ss.SSS",
             "yyyy-MM-dd'T'HH:mm:ss"
         )
+
 
         fun init(context: Context) {
             AndroidThreeTen.init(context)
@@ -110,6 +113,32 @@ class DateTime private constructor(
                 throw InvalidFormatException(dateString = "$millis - $timeZone", cause = e)
             }
         }
+    }
+
+
+    fun firstDayOfMonth(): DateTime {
+        return DateTime(
+            year = this.year,
+            month = this.month,
+            day = 1,
+            hour = this.hour,
+            minute = this.minute,
+            second = this.second,
+            timeZone = this.timeZone
+        )
+    }
+
+    fun lastDayOfMonth(): DateTime {
+        val lastDay = daysInMonth(this.year, this.month)
+        return DateTime(
+            year = this.year,
+            month = this.month,
+            day = lastDay,
+            hour = this.hour,
+            minute = this.minute,
+            second = this.second,
+            timeZone = this.timeZone
+        )
     }
 
     fun toMillis(): Long {
