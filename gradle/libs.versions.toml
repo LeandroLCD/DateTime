@@ -1,5 +1,5 @@
 [versions]
-agp = "8.8.0"
+agp = "8.10.1"
 kotlin = "2.0.0"
 coreKtx = "1.15.0"
 junit = "4.13.2"
@@ -11,7 +11,7 @@ composeBom = "2025.02.00"
 appcompat = "1.7.0"
 threetenabp = "1.4.4"
 shadowVersion = "9.0.0-beta8"
-dateTime = "1.1.6"
+dateTime = "1.2.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
