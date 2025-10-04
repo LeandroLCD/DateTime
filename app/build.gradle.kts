@@ -6,12 +6,12 @@ plugins {
 
 android {
     namespace = "com.blipblipcode.datetime"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.blipblipcode.datetime"
         minSdk = 24
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
 
@@ -48,8 +48,8 @@ dependencies {
     implementation(platform(libs.androidx.compose.bom))
 
     implementation(libs.threetenabp)
-    implementation(project(":Library"))
-    //implementation(libs.dateTime)
+    //implementation(project(":Library"))
+    implementation(libs.dateTime)
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
