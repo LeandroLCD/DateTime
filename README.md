@@ -1,3 +1,13 @@
+# 📅 DateTime
+
+[![](https://jitpack.io/v/LeandroLCD/DateTime.svg)](https://jitpack.io/#LeandroLCD/DateTime)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/LeandroLCD/DateTime)
+![GitHub last commit](https://img.shields.io/github/last-commit/LeandroLCD/DateTime)
+![GitHub issues](https://img.shields.io/github/issues/LeandroLCD/DateTime)
+
+Una librería ligera para trabajar con fechas y tiempos en **Android**, construida sobre [ThreeTenABP](https://github.com/JakeWharton/ThreeTenABP).  
+Proporciona una API sencilla para manipular, formatear y comparar fechas de manera segura.
+
 ## 🚀 Instalación
 
 ### 1. Agregar JitPack en `settings.gradle.kts`
