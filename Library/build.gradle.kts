@@ -1,4 +1,5 @@
 import org.gradle.kotlin.dsl.invoke
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.android.library)
@@ -34,12 +35,15 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions {
-        jvmTarget = "17"
+    kotlin {
+        compilerOptions {
+            jvmTarget = JvmTarget.JVM_17
+            freeCompilerArgs.add("-XXLanguage:+PropertyParamAnnotationDefaultTargetMode")
+        }
     }
 }
 jacoco {
-    toolVersion = "0.8.5" // La versión que sugeriste en la documentación
+    toolVersion = "0.8.10"
 }
 
 dependencies {
@@ -67,7 +71,7 @@ tasks.register("jacocoReport", JacocoReport::class) {
 
     val fileTreeConfig: (ConfigurableFileTree) -> Unit = {
         it.exclude(
-            "**/R.class", "**/R\$*.class", "**/BuildConfig.*", "**/Manifest*.*", // Android
+            "**/R.class", "**/R$*.class", "**/BuildConfig.*", "**/Manifest*.*", // Android
             "android/**/*.*",
             "**/*_Factory.class", "**/*_MembersInjector.class", "**/*_Provide*.class" // Dagger/Hilt generated classes (if applicable)
         )
@@ -79,14 +83,15 @@ tasks.register("jacocoReport", JacocoReport::class) {
     ))
 
     // Rutas de clases compiladas
+    val buildDirectory = getLayout().buildDirectory
     classDirectories.setFrom(
-        fileTree("${project.buildDir}/intermediates/javac/debug") { fileTreeConfig(this) } +
-                fileTree("${project.buildDir}/tmp/kotlin-classes/debug") { fileTreeConfig(this) }
+        fileTree("${buildDirectory}/intermediates/javac/debug") { fileTreeConfig(this) } +
+                fileTree("${buildDirectory}/tmp/kotlin-classes/debug") { fileTreeConfig(this) }
         // Si tienes otros paths de clases compiladas (ej. para variantes específicas), añádelas aquí
     )
 
     // Rutas de datos de ejecución de JaCoCo
-    executionData.setFrom(fileTree(project.buildDir) {
+    executionData.setFrom(fileTree(buildDirectory) {
         include("jacoco/testDebugUnitTest.exec") // Para Unit Tests
         // include("outputs/code_coverage/debugAndroidTest/connected_coverage.exec") // Si tienes Instrumented Tests y quieres incluirlos
     })
@@ -113,12 +118,13 @@ tasks {
         classDirectories.setFrom(files(subTasks.classDirectories))
         executionData.setFrom(files(subTasks.executionData))
 
+        val buildDirectory = getLayout().buildDirectory
         reports {
             html.required = true
-            html.outputLocation = file("$buildDir/reports/jacoco/html")
+            html.outputLocation = file("$buildDirectory/reports/jacoco/html")
 
             xml.required = true
-            xml.outputLocation = file("$buildDir/reports/jacoco/jacocoFullReport.xml")
+            xml.outputLocation = file("$buildDirectory/reports/jacoco/jacocoFullReport.xml")
         }
 
         doFirst {
@@ -128,21 +134,14 @@ tasks {
         coverallsJacoco {
             dependsOn(jacocoReportTask)
 
-            reportPath = "$buildDir/reports/jacoco/jacocoFullReport.xml"
+            reportPath = "$buildDirectory/reports/jacoco/jacocoFullReport.xml"
             reportSourceSets = subSourceDirs.flatMap { files(it) }
         }
     }
 }
 
 
-// **Configuración para el plugin de Coveralls:**
-// El plugin de Coveralls (asumiendo que es `com.github.klieber.coveralls`)
-// automáticamente buscará una tarea JacocoReport y la usará.
-// Por defecto, crea una tarea llamada `coverallsJacoco`.
-// Solo necesitamos asegurarnos de que `coverallsJacoco` dependa de nuestro `jacocoReport` personalizado.
-tasks.named("coverallsJacoco") {
-    dependsOn(tasks.named("jacocoReport")) // Asegura que 'jacocoReport' se ejecute antes de coverallsJacoco
-}
+
 
 // Opcional: Si quieres un reporte JaCoCo para instrumented tests
 // tasks.register("jacocoAndroidTestReport", JacocoReport::class) {
