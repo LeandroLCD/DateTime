@@ -1,0 +1,24 @@
+steps:
+  - name: Checkout Code # Descarga tu código del repositorio
+    uses: actions/checkout@v4
+
+  - name: Set up JDK 17 # Configura Java Development Kit (JDK) 17
+    uses: actions/setup-java@v4
+    with:
+      distribution: 'temurin' # Distribución de JDK recomendada
+      java-version: '17' # Versión de Java, coincide con tu jvmTarget
+      cache: 'gradle' # Cachea dependencias de Gradle para compilaciones más rápidas
+
+  - name: Grant execute permission for gradlew # Da permisos de ejecución al wrapper de Gradle
+    run: chmod +x gradlew
+
+  - name: Run Build and Tests # Ejecuta la tarea 'build' de Gradle
+    run: ./gradlew clean build # Esto limpia, compila y ejecuta los tests
+
+  - name: Generate Coverage Report and Upload to Coveralls # Genera el informe de cobertura y lo sube
+    # Aquí es donde le pasamos el token de forma segura
+    env:
+      COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+    run: ./gradlew coveralls # Ejecuta la tarea 'coveralls' del plugin
+    # Nota: Dependiendo de tu configuración de Coveralls, la tarea podría ser 'coverallsReport' o similar.
+    # 'coveralls' es la tarea predeterminada para el plugin de Gradle.
