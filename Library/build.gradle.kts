@@ -30,12 +30,6 @@ android {
     kotlinOptions {
         jvmTarget = "17"
     }
-    publishing {
-        singleVariant("release") {
-            withSourcesJar() // Opcional: incluir el código fuente
-            withJavadocJar() // Opcional: incluir Javadoc
-        }
-    }
 }
 
 
