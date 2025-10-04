@@ -171,11 +171,12 @@ tasks.named("coverallsJacoco") {
          xml.required.set(true)
          html.required.set(true)
      }
+     val buildDirectory = getLayout().buildDirectory
 
-     classDirectories.setFrom(fileTree("${project.buildDir}/intermediates/javac/debug") +
-             fileTree("${project.buildDir}/tmp/kotlin-classes/debug"))
+     classDirectories.setFrom(fileTree("${buildDirectory}/intermediates/javac/debug") +
+             fileTree("${buildDirectory}/tmp/kotlin-classes/debug"))
 
-     executionData.setFrom(fileTree(project.buildDir) {
+     executionData.setFrom(fileTree(buildDirectory) {
          include("outputs/code_coverage/debugAndroidTest/connected_coverage.exec")
      })
 
