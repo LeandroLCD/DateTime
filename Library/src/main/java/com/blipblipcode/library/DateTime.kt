@@ -5,8 +5,10 @@ import com.blipblipcode.library.model.FormatType
 import com.blipblipcode.library.model.TimeSpan
 import com.blipblipcode.library.throwable.InvalidFormatException
 import com.jakewharton.threetenabp.AndroidThreeTen
+import org.threeten.bp.Duration
 import org.threeten.bp.Instant
 import org.threeten.bp.LocalDateTime
+import org.threeten.bp.Period
 import org.threeten.bp.ZoneId
 import org.threeten.bp.ZonedDateTime
 import org.threeten.bp.format.DateTimeFormatter
@@ -191,27 +193,59 @@ class DateTime private constructor(
     }
 
     fun timeSpan(other: DateTime): TimeSpan {
-        val thisDateTime = LocalDateTime.of(year, month, day, hour, minute, second)
-        val otherDateTime = LocalDateTime.of(
-            other.year,
-            other.month,
-            other.day,
-            other.hour,
-            other.minute,
-            other.second
-        )
+        var startLdt = LocalDateTime.of(other.year, other.month, other.day, other.hour, other.minute, other.second)
+        var endLdt = LocalDateTime.of(year, month, day, hour, minute, second)
 
-        val years = ChronoUnit.YEARS.between(otherDateTime, thisDateTime)
-        val months = ChronoUnit.MONTHS.between(otherDateTime, thisDateTime) % 12
-        val days = ChronoUnit.DAYS.between(otherDateTime, thisDateTime) % 30
-        val hours = ChronoUnit.HOURS.between(otherDateTime, thisDateTime) % 24
-        val minutes = ChronoUnit.MINUTES.between(otherDateTime, thisDateTime) % 60
-        val seconds = ChronoUnit.SECONDS.between(otherDateTime, thisDateTime) % 60
+        val isNegative = startLdt.isAfter(endLdt)
+
+        if (isNegative) {
+            val temp = startLdt
+            startLdt = endLdt
+            endLdt = temp
+        }
+
+        // Calculate Period for date components
+        val period = Period.between(startLdt.toLocalDate(), endLdt.toLocalDate())
+
+        var years = period.years
+        var months = period.months
+        var days = period.days
+
+        // Now calculate time components.
+        // If end time is before start time (considering only time of day),
+        // we need to subtract one day and then calculate time difference.
+        var hours: Long
+        var minutes: Long
+        var seconds: Long
+
+        if (startLdt.toLocalTime().isAfter(endLdt.toLocalTime())) {
+            days-- // Decrement a day
+            // Calculate duration from start time to end time + 24 hours
+            val duration = Duration.between(startLdt.toLocalTime(), endLdt.toLocalTime().plusHours(24))
+            hours = duration.toHours()
+            minutes = duration.toMinutes() % 60
+            seconds = duration.getSeconds() % 60
+        } else {
+            val duration = Duration.between(startLdt.toLocalTime(), endLdt.toLocalTime())
+            hours = duration.toHours()
+            minutes = duration.toMinutes() % 60
+            seconds = duration.getSeconds() % 60
+        }
+
+        // Handle negative result if original order was reversed
+        if (isNegative) {
+            years = -years
+            months = -months
+            days = -days
+            hours = -hours
+            minutes = -minutes
+            seconds = -seconds
+        }
 
         return TimeSpan(
-            years.toInt(),
-            months.toInt(),
-            days.toInt(),
+            years,
+            months,
+            days,
             hours.toInt(),
             minutes.toInt(),
             seconds.toInt()

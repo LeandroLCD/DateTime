@@ -25,11 +25,11 @@ jobs: # Define uno o más "jobs" (trabajos) que se ejecutarán
     - name: Grant execute permission for gradlew # Da permisos de ejecución al wrapper de Gradle
       run: chmod +x gradlew
 
-    - name: Run Build and Tests # Ejecuta la tarea 'build' de Gradle
-      run: ./gradlew clean build # Esto limpia, compila y ejecuta los tests
+    - name: Run Build and Android Instrumented Tests # Ejecuta la tarea 'connectedDebugAndroidTest' de Gradle
+      run: ./gradlew clean connectedDebugAndroidTest # Esto limpia, compila y ejecuta los tests instrumentados
 
 
     - name: Generate Coverage Report and Upload to Coveralls
       env:
         COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
-      run: ./gradlew clean :Library:testDebugUnitTest :Library:jacocoReport :Library:coverallsJacoco
+      run: ./gradlew :Library:jacocoAndroidTestReport :Library:coverallsJacoco

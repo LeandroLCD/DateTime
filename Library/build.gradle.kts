@@ -1,3 +1,5 @@
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.gradle.kotlin.dsl.invoke
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
@@ -31,6 +33,24 @@ android {
             enableUnitTestCoverage = true
         }
     }
+
+    testOptions.unitTests.apply {
+        isReturnDefaultValues = true
+        all {
+            it.apply {
+                testLogging {
+                    exceptionFormat = TestExceptionFormat.FULL
+                    events =
+                        setOf(TestLogEvent.PASSED, TestLogEvent.FAILED, TestLogEvent.STANDARD_ERROR)
+                    showCauses = true
+                    showExceptions = true
+                    showStackTraces = true
+                }
+
+            }
+        }
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -50,16 +70,12 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.threetenabp)
-    testImplementation(libs.junit)
-    testImplementation(libs.junit.jupiter.api)
-    testRuntimeOnly(libs.junit.jupiter.engine)
-    testImplementation(libs.junit.jupiter.params)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 }
 
 tasks.register("jacocoReport", JacocoReport::class) {
-    dependsOn("test") // Aseguramos que los unit tests se ejecuten antes
+    dependsOn("jacocoAndroidTestReport") // Aseguramos que los unit tests se ejecuten antes
 
     group = "Reporting"
     description = "Generates JaCoCo coverage report for the Library module."
@@ -73,8 +89,7 @@ tasks.register("jacocoReport", JacocoReport::class) {
         it.exclude(
             "**/R.class", "**/R$*.class", "**/BuildConfig.*", "**/Manifest*.*", // Android
             "android/**/*.*",
-            "**/*_Factory.class", "**/*_MembersInjector.class", "**/*_Provide*.class" // Dagger/Hilt generated classes (if applicable)
-        )
+            "**/*_Factory.class", "**/*_MembersInjector.class", "**/*_Provide*.class") // Dagger/Hilt generated classes (if applicable)          )
     }
 
     sourceDirectories.setFrom(files(
@@ -139,27 +154,30 @@ tasks {
         }
     }
 }
+tasks.named("coverallsJacoco") {
+    dependsOn(tasks.named("jacocoReport")) // Asegura que 'jacocoReport' se ejecute antes de coverallsJacoco
+
+}
 
 
 
 
-// Opcional: Si quieres un reporte JaCoCo para instrumented tests
-// tasks.register("jacocoAndroidTestReport", JacocoReport::class) {
-//     dependsOn("createDebugCoverageReport") // Esta tarea se genera por AGP para instrumented tests
-//     group = "Reporting"
-//     description = "Generates JaCoCo coverage report for Android Instrumented Tests."
-//
-//     reports {
-//         xml.required.set(true)
-//         html.required.set(true)
-//     }
-//
-//     classDirectories.setFrom(fileTree("${project.buildDir}/intermediates/javac/debug") +
-//             fileTree("${project.buildDir}/tmp/kotlin-classes/debug"))
-//
-//     executionData.setFrom(fileTree(project.buildDir) {
-//         include("outputs/code_coverage/debugAndroidTest/connected_coverage.exec")
-//     })
-//
-//     sourceSets.setFrom(files("${project.projectDir}/src/main/java", "${project.projectDir}/src/main/kotlin"))
-// }
+ tasks.register("jacocoAndroidTestReport", JacocoReport::class) {
+     dependsOn("connectedDebugAndroidTest") // Esta tarea se genera por AGP para instrumented tests
+     group = "Reporting"
+     description = "Generates JaCoCo coverage report for Android Instrumented Tests."
+
+     reports {
+         xml.required.set(true)
+         html.required.set(true)
+     }
+
+     classDirectories.setFrom(fileTree("${project.buildDir}/intermediates/javac/debug") +
+             fileTree("${project.buildDir}/tmp/kotlin-classes/debug"))
+
+     executionData.setFrom(fileTree(project.buildDir) {
+         include("outputs/code_coverage/debugAndroidTest/connected_coverage.exec")
+     })
+
+     sourceDirectories.setFrom(files("${project.projectDir}/src/main/java", "${project.projectDir}/src/main/kotlin"))
+ }
