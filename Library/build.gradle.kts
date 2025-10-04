@@ -44,6 +44,9 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.threetenabp)
     testImplementation(libs.junit)
+    testImplementation(libs.junit.jupiter.api)
+    testRuntimeOnly(libs.junit.jupiter.engine)
+    testImplementation(libs.junit.jupiter.params)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 }
