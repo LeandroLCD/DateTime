@@ -28,10 +28,8 @@ jobs: # Define uno o más "jobs" (trabajos) que se ejecutarán
     - name: Run Build and Tests # Ejecuta la tarea 'build' de Gradle
       run: ./gradlew clean build # Esto limpia, compila y ejecuta los tests
 
-    - name: Generate Coverage Report and Upload to Coveralls # Genera el informe de cobertura y lo sube
-      # Aquí es donde le pasamos el token de forma segura
+
+    - name: Generate Coverage Report and Upload to Coveralls
       env:
         COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
-      run: ./gradlew coveralls # Ejecuta la tarea 'coveralls' del plugin
-      # Nota: Dependiendo de tu configuración de Coveralls, la tarea podría ser 'coverallsReport' o similar.
-      # 'coveralls' es la tarea predeterminada para el plugin de Gradle.
+      run: ./gradlew clean :Library:testDebugUnitTest :Library:jacocoReport :Library:coverallsJacoco
