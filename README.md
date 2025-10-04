@@ -1,80 +1,162 @@
-# DateTime Library
+## 🚀 Instalación
 
-## 📌 Descripción
-**DateTime** es una librería en Kotlin diseñada para simplificar la manipulación de fechas y horas en aplicaciones Android. Utiliza **ThreeTenABP** como base para proporcionar una API moderna y eficiente compatible con Android.
+### 1. Agregar JitPack en `settings.gradle.kts`
 
-## 🚀 Características
-- Fácil inicialización y uso.
-- Soporte para zonas horarias.
-- Conversión y formateo de fechas.
-- Cálculo de diferencias entre fechas.
-- Soporte para formatos fecha corta y larga con separador personalizado.
-- Soporte para formato personalizado
+```kotlin
+dependencyResolutionManagement {
+    repositories {
+        google()
+        mavenCentral()
+        maven("https://jitpack.io")
+    }
+}
+```
 
-## 📦 Instalación
-### 1️⃣ Agregar la dependencia
-Asegúrate de incluir la librería en tu `libs.versions.toml` (para Version Catalog):
+### 2. Usar en tu `libs.versions.toml`
 
 ```toml
 [versions]
-dateTime = "1.1.7"
+dateTime = "1.0.0"
 threetenabp = "1.4.4"
+
 [libraries]
 dateTime = { module = "com.github.LeandroLCD:DateTime", version.ref = "dateTime" }
 threetenabp = { module = "com.jakewharton.threetenabp:threetenabp", version.ref = "threetenabp" }
 ```
 
-Y en tu módulo de aplicación (`build.gradle.kts`):
+### 3. Agregar dependencias en `build.gradle.kts`
 
 ```kotlin
 dependencies {
-    implementation(libs.datetime)
+    implementation(libs.dateTime)
     implementation(libs.threetenabp)
 }
 ```
 
-### 2️⃣ Inicialización en la aplicación
-Antes de usar la librería, inicialízala en la clase `Application`, o en tu actividad principal:
+### 4. Inicializar en tu `Application`
 
 ```kotlin
 class MyApp : Application() {
     override fun onCreate() {
         super.onCreate()
-        DateTime.init(this) // 🔥 Inicialización obligatoria y necesaria para capturar el uso horario del dispositivo
+        DateTime.init(this)
     }
 }
 ```
 
-## 📖 Uso
-### ✅ Obtener la fecha y hora actual
-```kotlin
-val now = DateTime.now()
-println("Fecha actual: \$now")
-```
+---
 
-### 📅 Formatear una fecha
-```kotlin
-val formattedDate = now.format("yyyy-MM-dd HH:mm:ss")
-println("Fecha formateada: \$formattedDate")
-```
-```kotlin
-val formattedDate = now.format(FormatType.Short('/'))
-println("Fecha formateada: \$formattedDate")
-```
+## ✨ Características
 
-### ⏳ Calcular la diferencia entre dos fechas
-```kotlin
-val startDate = DateTime.fromString("2024-01-01")
-val endDate = DateTime.fromString("2024-02-01")
-val daysBetween = startDate.timeSpan(endDate).totalDays()
-println("Días entre fechas: \$daysBetween")
-```
-## 🚀 Compatibilidad
-Se puede usar desde el API 24 🔥
-
-## 🤝 Contribuciones
-Las contribuciones son bienvenidas. Si encuentras un error o deseas agregar una nueva funcionalidad, abre un **issue** o un **pull request**.
+- Crear fechas desde **string**, **milisegundos** o la fecha/hora actual.
+- Conversión entre **LocalDateTime**, **ZonedDateTime** y **millis**.
+- Sumar o restar **días, meses, años, minutos, segundos**.
+- Calcular diferencias entre fechas con `TimeSpan`.
+- Formateo flexible mediante patrones o tipos predefinidos.
+- Validaciones seguras para días y meses inválidos.
+- Builder simple para inicializar fechas personalizadas.
 
 ---
-¡Gracias por usar **DateTime**! 🚀
+
+## 📚 Uso
+
+### Crear fechas
+
+```kotlin
+// Fecha actual con zona horaria del sistema
+val now = DateTime.now()
+
+// Fecha actual en una zona horaria específica
+val nowInUtc = DateTime.now("UTC")
+
+// Desde string (intenta con varios patrones comunes)
+val fromString = DateTime.fromString("2023-12-25")
+
+// Desde milisegundos
+val fromMillis = DateTime.fromMillis(System.currentTimeMillis())
+```
+
+### Formatear fechas
+
+```kotlin
+val date = DateTime.now()
+
+// Usando tipo Large
+val formattedLarge = date.format(FormatType.Large(delimiter = "-"))
+// -> 04-10-2025 14:30:00 Europe/Madrid
+
+// Usando tipo Short
+val formattedShort = date.format(FormatType.Short(delimiter = "/"))
+// -> 04/10/2025
+
+// Usando patrón personalizado
+val custom = date.format("dd MMM yyyy HH:mm:ss")
+// -> 04 Oct 2025 14:30:00
+```
+
+### Operaciones con fechas
+
+```kotlin
+val date = DateTime.now()
+
+val nextWeek = date.addDays(7)
+val nextMonth = date.addMonths(1)
+val nextYear = date.addYears(1)
+
+val firstDay = date.firstDayOfMonth()
+val lastDay = date.lastDayOfMonth()
+```
+
+### Diferencias entre fechas
+
+```kotlin
+val start = DateTime.fromString("2020-01-01")
+val end = DateTime.fromString("2023-05-15")
+
+val diff = end.timeSpan(start)
+// diff -> TimeSpan(years=3, months=4, days=14, hours=0, minutes=0, seconds=0)
+```
+
+### Conversión
+
+```kotlin
+val millis = date.toMillis()
+val utcMillis = date.toMillisUTC()
+
+val ldt = date.toLocalDateTime()
+val zdt = date.toZonedDateTime()
+```
+
+### Usando el Builder
+
+```kotlin
+val date = DateTime.Builder()
+    .setYear(2025)
+    .setMonth(12)
+    .setDay(31)
+    .build()
+```
+
+---
+
+## ⚠️ Excepciones
+
+La librería lanza `InvalidFormatException` cuando el string o zona horaria no son válidos:
+
+```kotlin
+try {
+    val date = DateTime.fromString("invalid-date")
+} catch (e: InvalidFormatException) {
+    // manejar error
+}
+```
+
+---
+
+## 🛠️ Dependencias
+
+- [DateTime](https://github.com/LeandroLCD/DateTime)
+- [ThreeTenABP](https://github.com/JakeWharton/ThreeTenABP)
+
+---
 
