@@ -1,14 +1,24 @@
 package com.blipblipcode.library
 
+import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import com.blipblipcode.library.model.FormatType
 import com.blipblipcode.library.throwable.InvalidFormatException
-import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.Test
+import junit.framework.TestCase.assertEquals
+import org.junit.Assert.assertThrows
+import org.junit.Before
+import org.junit.Test
 
-class DateTimeTest {
+
+class DateTimeAndroidTest {
+    private val applicationContext =  getInstrumentation().targetContext
+
+    @Before
+    fun setUp() {
+        DateTime.init(applicationContext)
+    }
 
     @Test
-    fun `should create DateTime from valid string format yyyy-mm-dd`() {
+    fun shouldCreateDateTimeFromValidStringFormatYyyyMmDd() {
         /**GIVEN**/
         val dateString = "2023-12-25"
 
@@ -20,8 +30,9 @@ class DateTimeTest {
         assertEquals(12, dateTime.month)
         assertEquals(25, dateTime.day)
     }
+
     @Test
-    fun `should create DateTime from valid string format dd-mm-yyyy`() {
+    fun shouldCreateDateTimeFromValidStringFormatDdMmYyyy() {
         /**GIVEN**/
         val dateString = "25-12-2023"
 
@@ -34,7 +45,7 @@ class DateTimeTest {
         assertEquals(25, dateTime.day)
     }
     @Test
-    fun `should create DateTime from valid string format dd-mm-yy`() {
+    fun shouldCreateDateTimeFromValidStringFormatDdMmYy() {
         /**GIVEN**/
         val dateString = "25-12-23"
 
@@ -48,7 +59,7 @@ class DateTimeTest {
     }
 
     @Test
-    fun `should throw InvalidFormatException for invalid date string`() {
+    fun shouldThrowInvalidFormatExceptionForInvalidDateString() {
         /**GIVEN**/
         val invalidDate = "invalid-date"
 
@@ -59,7 +70,7 @@ class DateTimeTest {
     }
 
     @Test
-    fun `should add days correctly`() {
+    fun shouldAddDaysCorrectly() {
         /**GIVEN**/
         val date = DateTime.fromString("2023-01-01")
 
@@ -73,7 +84,7 @@ class DateTimeTest {
     }
 
     @Test
-    fun `should add months correctly`() {
+    fun shouldAddMonthsCorrectly() {
         /**GIVEN**/
         val date = DateTime.fromString("2023-01-15")
 
@@ -87,7 +98,7 @@ class DateTimeTest {
     }
 
     @Test
-    fun `should calculate first and last day of month`() {
+    fun shouldCalculateFirstAndLastDayOfMonth() {
         /**GIVEN**/
         val date = DateTime.fromString("2023-02-15")
 
@@ -101,7 +112,7 @@ class DateTimeTest {
     }
 
     @Test
-    fun `should detect leap year February`() {
+    fun shouldDetectLeapYearFebruary() {
         /**GIVEN**/
         val leapYearDate = DateTime.fromString("2024-02-10")
 
@@ -113,7 +124,7 @@ class DateTimeTest {
     }
 
     @Test
-    fun `should convert to millis and back`() {
+    fun shouldConvertToMillisAndBack() {
         /**GIVEN**/
         val date = DateTime.fromString("2023-10-04")
 
@@ -128,7 +139,7 @@ class DateTimeTest {
     }
 
     @Test
-    fun `should format using FormatType Large`() {
+    fun shouldFormatUsingFormatTypeLarge() {
         /**GIVEN**/
         val date = DateTime.fromString("2023-10-04")
 
@@ -136,12 +147,12 @@ class DateTimeTest {
         val formatted = date.format(FormatType.Large(delimiter = '-'))
 
         /**THEN**/
-        assertTrue(formatted.contains("2023"))
-        assertTrue(formatted.contains("04-10"))
+        assert(formatted.contains("2023"))
+        assert(formatted.contains("04-10"))
     }
 
     @Test
-    fun `should calculate timespan between two dates`() {
+    fun shouldCalculateTimespanBetweenTwoDates() {
         /**GIVEN**/
         val start = DateTime.fromString("2020-01-01")
         val end = DateTime.fromString("2023-01-01")
@@ -156,7 +167,7 @@ class DateTimeTest {
     }
 
     @Test
-    fun `should build date with Builder`() {
+    fun shouldBuildDateWithBuilder() {
         /**GIVEN**/
         val builder = DateTime.Builder()
 
@@ -168,4 +179,5 @@ class DateTimeTest {
         assertEquals(12, date.month)
         assertEquals(31, date.day)
     }
+
 }
