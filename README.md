@@ -6,7 +6,7 @@
 ![GitHub issues](https://img.shields.io/github/issues/LeandroLCD/DateTime)
 ![Tests](https://img.shields.io/badge/tests-passing-brightgreen)
 [![Coverage Status](https://coveralls.io/repos/github/LeandroLCD/DateTime/badge.svg?branch=master)](https://coveralls.io/github/LeandroLCD/DateTime?branch=master)
-
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/LeandroLCD/DateTime/tree/master.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/LeandroLCD/DateTime/tree/master)
 
 
 
