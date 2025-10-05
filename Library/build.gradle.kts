@@ -24,9 +24,6 @@ android {
                 "proguard-rules.pro"
             )
         }
-        debug { // Asegúrate de que los reports de test estén habilitados para debug
-            enableUnitTestCoverage = true
-        }
     }
 
     compileOptions {
