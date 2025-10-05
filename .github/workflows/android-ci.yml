@@ -25,8 +25,11 @@ jobs: # Define uno o más "jobs" (trabajos) que se ejecutarán
     - name: Grant execute permission for gradlew # Da permisos de ejecución al wrapper de Gradle
       run: chmod +x gradlew
 
-    - name: Run Build and Android Instrumented Tests # Ejecuta la tarea 'connectedDebugAndroidTest' de Gradle
-      run: ./gradlew clean connectedDebugAndroidTest # Esto limpia, compila y ejecuta los tests instrumentados
+    - name: Run Instrumented Tests with GMD
+      run: ./gradlew managedDevice<pixel2>Test --stacktrace -Pandroid.testoptions.manageddevices.emulator.gpu=swiftshader_indirect
+        # Reemplaza <DeviceName> con el nombre del dispositivo que definas en tu archivo build.gradle
+        # Por ejemplo, si lo llamas 'pixel3a', el comando será './gradlew managedDevicePixel3aTest'
+        # La propiedad para la GPU es necesaria en entornos de CI sin aceleración gráfica
 
 
     - name: Generate Coverage Report and Upload to Coveralls

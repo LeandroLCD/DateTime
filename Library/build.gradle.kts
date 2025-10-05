@@ -1,6 +1,5 @@
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
-import org.gradle.kotlin.dsl.invoke
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -16,7 +15,6 @@ android {
 
     defaultConfig {
         minSdk = 24
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
     }
@@ -33,6 +31,21 @@ android {
             enableUnitTestCoverage = true
         }
     }
+    testOptions {
+        managedDevices {
+            localDevices {
+                create("pixel2") {
+                    // Use device profiles you typically see in Android Studio.
+                    device = "Pixel 2"
+                    // Use only API levels 27 and higher.
+                    apiLevel = 30
+                    // To include Google services, use "google".
+                    systemImageSource = "aosp"
+                }
+            }
+        }
+    }
+
 
     testOptions.unitTests.apply {
         isReturnDefaultValues = true
@@ -65,13 +78,13 @@ android {
 jacoco {
     toolVersion = "0.8.10"
 }
-
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.threetenabp)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    //androidTestUtil(libs.androidx.test.services)
 }
 
 tasks.register("jacocoReport", JacocoReport::class) {
@@ -89,13 +102,16 @@ tasks.register("jacocoReport", JacocoReport::class) {
         it.exclude(
             "**/R.class", "**/R$*.class", "**/BuildConfig.*", "**/Manifest*.*", // Android
             "android/**/*.*",
-            "**/*_Factory.class", "**/*_MembersInjector.class", "**/*_Provide*.class") // Dagger/Hilt generated classes (if applicable)          )
+            "**/*_Factory.class", "**/*_MembersInjector.class", "**/*_Provide*.class"
+        ) // Dagger/Hilt generated classes (if applicable)          )
     }
 
-    sourceDirectories.setFrom(files(
-        "${project.projectDir}/src/main/java",
-        "${project.projectDir}/src/main/kotlin" // Añadido para Kotlin
-    ))
+    sourceDirectories.setFrom(
+        files(
+            "${project.projectDir}/src/main/java",
+            "${project.projectDir}/src/main/kotlin" // Añadido para Kotlin
+        )
+    )
 
     // Rutas de clases compiladas
     val buildDirectory = getLayout().buildDirectory
@@ -162,23 +178,30 @@ tasks.named("coverallsJacoco") {
 
 
 
- tasks.register("jacocoAndroidTestReport", JacocoReport::class) {
-     dependsOn("connectedDebugAndroidTest") // Esta tarea se genera por AGP para instrumented tests
-     group = "Reporting"
-     description = "Generates JaCoCo coverage report for Android Instrumented Tests."
+tasks.register("jacocoAndroidTestReport", JacocoReport::class) {
+    dependsOn("connectedDebugAndroidTest") // Esta tarea se genera por AGP para instrumented tests
+    group = "Reporting"
+    description = "Generates JaCoCo coverage report for Android Instrumented Tests."
 
-     reports {
-         xml.required.set(true)
-         html.required.set(true)
-     }
-     val buildDirectory = getLayout().buildDirectory
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+    val buildDirectory = getLayout().buildDirectory
 
-     classDirectories.setFrom(fileTree("${buildDirectory}/intermediates/javac/debug") +
-             fileTree("${buildDirectory}/tmp/kotlin-classes/debug"))
+    classDirectories.setFrom(
+        fileTree("${buildDirectory}/intermediates/javac/debug") +
+                fileTree("${buildDirectory}/tmp/kotlin-classes/debug")
+    )
 
-     executionData.setFrom(fileTree(buildDirectory) {
-         include("outputs/code_coverage/debugAndroidTest/connected_coverage.exec")
-     })
+    executionData.setFrom(fileTree(buildDirectory) {
+        include("outputs/code_coverage/debugAndroidTest/connected_coverage.exec")
+    })
 
-     sourceDirectories.setFrom(files("${project.projectDir}/src/main/java", "${project.projectDir}/src/main/kotlin"))
- }
+    sourceDirectories.setFrom(
+        files(
+            "${project.projectDir}/src/main/java",
+            "${project.projectDir}/src/main/kotlin"
+        )
+    )
+}
