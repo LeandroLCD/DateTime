@@ -29,12 +29,11 @@ jobs:
 
       # -------------------------
       # Aquí: arrancar emulador y ejecutar
-      # tests + jacoco report + upload (TODO en una sola invocación)
+      # tests + jacoco report + upload
       # -------------------------
       - android/start_emulator_and_run_tests:
           system_image: << parameters.system-image >>
           # Ejecutamos tests, luego generamos reporte JaCoCo y subimos a Coveralls
-          # Todo en la misma invocación para mantener el device conectado.
           test_command: |
             ./gradlew  jacocoAndroidTestReport coverallsJacoco --no-daemon --stacktrace
 
