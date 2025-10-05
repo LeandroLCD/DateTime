@@ -35,7 +35,7 @@ jobs:
           system_image: << parameters.system-image >>
           # Ejecutamos tests, luego generamos reporte JaCoCo y subimos a Coveralls
           test_command: |
-            ./gradlew  jacocoAndroidTestReport coverallsJacoco --no-daemon --stacktrace
+            ./gradlew  jacocoAndroidTestReport --no-daemon --stacktrace
 
       - android/save_gradle_cache
 
