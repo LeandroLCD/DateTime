@@ -1,38 +1,62 @@
 # Use the latest 2.1 version of CircleCI pipeline process engine.
-# See: https://circleci.com/docs/reference/configuration-reference
 version: 2.1
 orbs:
   android: circleci/android@3.1.0
-  gcp-cli: circleci/gcp-cli@3.3.1
 
 jobs:
-
   android-test:
     parameters:
       system-image:
         type: string
-        default: system-images;android-35;google_apis;x86_64
+        default: system-images;android-34;google_apis;x86_64
     executor:
       name: android/android_machine
       resource_class: large
       tag: 2024.11.1
+    
     steps:
       - checkout
+      
+      # Restaurar la caché de Gradle si existe, para acelerar la compilación
+      - android/restore_gradle_cache
+      
+      # Inicia el emulador y ejecuta las pruebas
       - android/start_emulator_and_run_tests:
-          test_command: ./gradlew :app:connectedDebugAndroidTest
+          test_command: ./gradlew connectedDebugAndroidTest
           system_image: << parameters.system-image >>
+      
+      # Guardar la caché de Gradle después de las pruebas
+      - android/save_gradle_cache
+      
+      # *** INICIO: PASOS PARA COVERAGE CON COVERALLS ***
       - run:
-          name: Save test results
+          name: Generate Coverage Report for Library
+          # Reemplaza 'Library' con el nombre de tu módulo si es diferente
+          command: ./gradlew :Library:jacocoAndroidTestReport
+      - run:
+          name: Upload to Coveralls
+          command: |
+            ./gradlew :Library:coverallsJacoco
+          environment:
+            COVERALLS_REPO_TOKEN: ${COVERALLS_REPO_TOKEN}
+      # *** FIN: PASOS PARA COVERAGE CON COVERALLS ***
+      
+      # Guardar los resultados de los tests
+      - run:
+          name: Collect test results
           command: |
             mkdir -p ~/test-results/junit/
             find . -type f -regex ".*/build/outputs/androidTest-results/.*xml" -exec cp {} ~/test-results/junit/ \;
           when: always
+      
+      # Almacenar los resultados de los tests para verlos en el panel de control de CircleCI
       - store_test_results:
           path: ~/test-results
+      
+      # Almacenar los artefactos (resultados en formato XML)
       - store_artifacts:
           path: ~/test-results/junit
 
- 
 workflows:
   test-and-build:
     jobs:
@@ -41,9 +65,10 @@ workflows:
             alias: android-test-all
             parameters:
               system-image:
-                - system-images;android-35;google_apis;x86_64
+                - system-images;android-34;google_apis;x86_64
           name: android-test-<<matrix.system-image>>
           filters:
             branches:
-              only: main 
+              only: main
+
               
