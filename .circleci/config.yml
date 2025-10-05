@@ -1,5 +1,4 @@
 # CircleCI configuration for Android Instrumented Tests with JaCoCo + Coveralls
-# CircleCI configuration for Android Instrumented Tests + JaCoCo + Coveralls
 version: 2.1
 
 orbs:
