@@ -1,11 +1,11 @@
-# Use the latest 2.1 version of CircleCI pipeline process engine.
+# CircleCI configuration for Android Instrumented Tests with JaCoCo + Coveralls
 version: 2.1
+
 orbs:
   android: circleci/android@3.1.0
 
-
 jobs:
-  android-test:
+  android-instrumented-test:
     parameters:
       system-image:
         type: string
@@ -14,62 +14,73 @@ jobs:
       name: android/android_machine
       resource_class: large
       tag: 2024.11.1
-    
+
     steps:
       - checkout
-      
-      # Restaurar la caché de Gradle si existe, para acelerar la compilación
+
+      # ✅ Restaurar caché Gradle
       - android/restore_gradle_cache
-      
-      # Inicia el emulador y ejecuta las pruebas
+
+      # ✅ Ejecutar las pruebas instrumentadas
       - android/start_emulator_and_run_tests:
-          test_command: ./gradlew connectedDebugAndroidTest
           system_image: << parameters.system-image >>
-      
-      # Guardar la caché de Gradle después de las pruebas
+          test_command: ./gradlew connectedDebugAndroidTest
+
+      # ✅ Guardar caché Gradle
       - android/save_gradle_cache
-      
-      # *** INICIO: PASOS PARA COVERAGE CON COVERALLS ***
+
+      # ✅ Generar reporte de cobertura (solo Android Tests)
       - run:
-          name: Generate Coverage Report for Library
-          # Reemplaza 'Library' con el nombre de tu módulo si es diferente
-          command: ./gradlew :Library:jacocoAndroidTestReport
+          name: Generate JaCoCo Coverage Report
+          command: ./gradlew jacocoAndroidTestReport
+
+      # ✅ Subir reporte a Coveralls
+          # Se requiere COVERALLS_REPO_TOKEN en los environment variables de CircleCI
       - run:
-          name: Upload to Coveralls
-          command: |
-            ./gradlew :Library:coverallsJacoco
+          name: Upload Coverage to Coveralls
+          command: ./gradlew coverallsJacoco
           environment:
             COVERALLS_REPO_TOKEN: ${COVERALLS_REPO_TOKEN}
-      # *** FIN: PASOS PARA COVERAGE CON COVERALLS ***
-      
-      # Guardar los resultados de los tests
+
+      # ✅ Recopilar resultados de los tests
       - run:
-          name: Collect test results
+          name: Collect Test Results
           command: |
             mkdir -p ~/test-results/junit/
-            find . -type f -regex ".*/build/outputs/androidTest-results/.*xml" -exec cp {} ~/test-results/junit/ \;
+            # Copia todos los archivos XML de resultados de androidTest
+            find . -type f \( \
+              -regex ".*/build/outputs/androidTest-results/.*xml" \
+              -o -regex ".*/build/outputs/connected_android_test_additional_output/.*xml" \
+            \) -exec cp {} ~/test-results/junit/ \;
           when: always
-      
-      # Almacenar los resultados de los tests para verlos en el panel de control de CircleCI
+
+      # ✅ Almacenar resultados y artefactos
       - store_test_results:
           path: ~/test-results
-      
-      # Almacenar los artefactos (resultados en formato XML)
+
       - store_artifacts:
           path: ~/test-results/junit
+          destination: junit-results
+
+      - store_artifacts:
+          path: app/build/reports/jacoco
+          destination: jacoco-report
 
 workflows:
-  test-and-build:
+  test-and-coverage:
     jobs:
-      - android-test:
+      - android-instrumented-test:
           matrix:
-            alias: android-test-all
+            alias: android-instrumented-test-all
             parameters:
               system-image:
                 - system-images;android-34;google_apis;x86_64
-          name: android-test-<<matrix.system-image>>
+                # Puedes agregar más versiones si deseas probar en varias APIs:
+                # - system-images;android-33;google_apis;x86_64
+          name: android-instrumented-test-<<matrix.system-image>>
           filters:
             branches:
               only: main
+
 
               
