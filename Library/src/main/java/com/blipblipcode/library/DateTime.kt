@@ -1,19 +1,13 @@
 package com.blipblipcode.library
 
 import android.content.Context
+import android.os.Build
 import android.util.Log
 import com.blipblipcode.library.model.FormatType
 import com.blipblipcode.library.model.TimeSpan
 import com.blipblipcode.library.throwable.InvalidFormatException
-import java.time.Instant
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.ZoneId
-import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
-import java.time.temporal.ChronoUnit
 
-class DateTime private constructor(
+class DateTime internal constructor(
     val year: Int,
     val month: Int,
     val day: Int,
@@ -22,17 +16,6 @@ class DateTime private constructor(
     val second: Int,
     val timeZone: String
 ) {
-    private constructor(
-        zoneDateTime: ZonedDateTime
-    ) : this(
-        zoneDateTime.year,
-        zoneDateTime.monthValue,
-        zoneDateTime.dayOfMonth,
-        zoneDateTime.hour,
-        zoneDateTime.minute,
-        zoneDateTime.second,
-        zoneDateTime.zone.id
-    )
 
     val daysInMonth = daysInMonth(this.year, this.month)
 
@@ -42,39 +25,29 @@ class DateTime private constructor(
     }
 
     companion object {
-        private val PATTERNS: List<String> = listOf(
-            "dd/MM/yyyy",
-            "dd-MM-yyyy",
-            "dd-MM-yy",
-            "yyyy-MM-dd",
-            "d-M-yyyy",
-            "yyyy-M-d",
-            "dd-MM-yyyy HH:mm:ss",
-            "dd-MM-yyyy HH:mm",
-            "yyyy-MM-dd HH:mm:ss",
-            "yyyy-MM-dd HH:mm",
-            "yyyy-MM-dd'T'HH:mm:ss.SSSSSS",
-            "yyyy-MM-dd'T'HH:mm:ss.SSS",
-            "yyyy-MM-dd'T'HH:mm:ss"
-        )
-
-
         @Deprecated(
-            message = "Initialization is no longer required. The library now uses native java.time.",
+            message = "Initialization is no longer required. The library now uses native APIs.",
             replaceWith = ReplaceWith(""),
             level = DeprecationLevel.WARNING
         )
         fun init(@Suppress("UNUSED_PARAMETER") context: Context) {
-            Log.i("DateTime", "Initialization is no longer required. The library now uses native java.time.")
+            Log.i("DateTime", "Initialization is no longer required. The library now uses native APIs.")
         }
 
         fun now(): DateTime {
-            val zoneId = ZoneId.systemDefault()
-            return DateTime(ZonedDateTime.now(zoneId))
+            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                ModernDateTimeImpl.now()
+            } else {
+                LegacyDateTimeImpl.now()
+            }
         }
+
         fun now(timeZone: String): DateTime {
-            val zoneId = ZoneId.of(timeZone)
-            return DateTime(ZonedDateTime.now(zoneId))
+            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                ModernDateTimeImpl.now(timeZone)
+            } else {
+                LegacyDateTimeImpl.now(timeZone)
+            }
         }
 
         private fun isLeapYear(year: Int): Boolean {
@@ -90,33 +63,26 @@ class DateTime private constructor(
         }
 
         fun fromString(dateString: String): DateTime {
-            val parsedDateTime = PATTERNS.firstNotNullOfOrNull { pattern ->
-                runCatching {
-                    val formatter = DateTimeFormatter.ofPattern(pattern)
-                    // Si el patrón contiene hora, minutos o segundos, parseamos como LocalDateTime
-                    if (pattern.contains("H") || pattern.contains("m") || pattern.contains("s")) {
-                        LocalDateTime.parse(dateString, formatter)
-                    } else {
-                        // Si el patrón solo tiene fecha, parseamos como LocalDate y convertimos a LocalDateTime (inicio del día)
-                        LocalDate.parse(dateString, formatter).atStartOfDay()
-                    }
-                }.getOrNull()
-            } ?: throw InvalidFormatException(dateString = dateString)
-
-            return DateTime(ZonedDateTime.of(parsedDateTime, ZoneId.systemDefault()))
+            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                ModernDateTimeImpl.fromString(dateString)
+            } else {
+                LegacyDateTimeImpl.fromString(dateString)
+            }
         }
 
         fun fromMillis(millis: Long): DateTime {
-            val zoneDateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(millis), ZoneId.systemDefault())
-            return DateTime(zoneDateTime)
+            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                ModernDateTimeImpl.fromMillis(millis)
+            } else {
+                LegacyDateTimeImpl.fromMillis(millis)
+            }
         }
 
-        fun fromMillis(millis: Long, timeZone:String): DateTime {
-            try {
-                val zoneDateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(millis), ZoneId.of(timeZone))
-                return DateTime(zoneDateTime)
-            }catch (e:Exception){
-                throw InvalidFormatException(dateString = "$millis - $timeZone", cause = e)
+        fun fromMillis(millis: Long, timeZone: String): DateTime {
+            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                ModernDateTimeImpl.fromMillis(millis, timeZone)
+            } else {
+                LegacyDateTimeImpl.fromMillis(millis, timeZone)
             }
         }
     }
@@ -148,112 +114,75 @@ class DateTime private constructor(
     }
 
     fun toMillis(): Long {
-        val zonedDateTime = ZonedDateTime.of(
-            year, month, day, hour, minute, second, 0, ZoneId.of(timeZone)
-        )
-        return zonedDateTime.toInstant().toEpochMilli()
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            ModernDateTimeImpl.toMillis(this)
+        } else {
+            LegacyDateTimeImpl.toMillis(this)
+        }
     }
 
     fun toMillis(zone: String): Long {
-        val zonedDateTime = ZonedDateTime.of(
-            year, month, day, hour, minute, second, 0, ZoneId.of(zone)
-        )
-        return zonedDateTime.toInstant().toEpochMilli()
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            ModernDateTimeImpl.toMillis(this, zone)
+        } else {
+            LegacyDateTimeImpl.toMillis(this, zone)
+        }
     }
+
     fun toMillisUTC(): Long {
-        val zonedDateTime = ZonedDateTime.of(
-            year, month, day, hour, minute, second, 0, ZoneId.of("UTC")
-        )
-        return zonedDateTime.toInstant().toEpochMilli()
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            ModernDateTimeImpl.toMillisUTC(this)
+        } else {
+            LegacyDateTimeImpl.toMillisUTC(this)
+        }
     }
 
     fun addDays(days: Long): DateTime {
-        val updatedDate =
-            LocalDateTime.of(year, month, day, hour, minute, second).plusDays(days)
-        return copy(updatedDate)
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            ModernDateTimeImpl.addDays(this, days)
+        } else {
+            LegacyDateTimeImpl.addDays(this, days)
+        }
     }
+
     fun addMonths(months: Long): DateTime {
-        val updatedDate =
-            LocalDateTime.of(year, month, day, hour, minute, second).plusMonths(months)
-        return copy(updatedDate)
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            ModernDateTimeImpl.addMonths(this, months)
+        } else {
+            LegacyDateTimeImpl.addMonths(this, months)
+        }
     }
 
     fun addYears(years: Long): DateTime {
-        val updatedDate =
-            LocalDateTime.of(year, month, day, hour, minute, second).plusYears(years)
-        return copy(updatedDate)
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            ModernDateTimeImpl.addYears(this, years)
+        } else {
+            LegacyDateTimeImpl.addYears(this, years)
+        }
     }
 
     fun addMinutes(minutes: Long): DateTime {
-        val updatedDate =
-            LocalDateTime.of(year, month, day, hour, minute, second).plusMinutes(minutes)
-        return copy(updatedDate)
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            ModernDateTimeImpl.addMinutes(this, minutes)
+        } else {
+            LegacyDateTimeImpl.addMinutes(this, minutes)
+        }
     }
 
     fun addSeconds(seconds: Long): DateTime {
-        val updatedDate =
-            LocalDateTime.of(year, month, day, hour, minute, second).plusSeconds(seconds)
-        return copy(updatedDate)
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            ModernDateTimeImpl.addSeconds(this, seconds)
+        } else {
+            LegacyDateTimeImpl.addSeconds(this, seconds)
+        }
     }
 
     fun timeSpan(other: DateTime): TimeSpan {
-        var startLdt = LocalDateTime.of(other.year, other.month, other.day, other.hour, other.minute, other.second)
-        var endLdt = LocalDateTime.of(year, month, day, hour, minute, second)
-
-        val isNegative = startLdt.isAfter(endLdt)
-
-        if (isNegative) {
-            val temp = startLdt
-            startLdt = endLdt
-            endLdt = temp
-        }
-
-        // Calculate Period for date components
-        val period = Period.between(startLdt.toLocalDate(), endLdt.toLocalDate())
-
-        var years = period.years
-        var months = period.months
-        var days = period.days
-
-        // Now calculate time components.
-        // If end time is before start time (considering only time of day),
-        // we need to subtract one day and then calculate time difference.
-        var hours: Long
-        var minutes: Long
-        var seconds: Long
-
-        if (startLdt.toLocalTime().isAfter(endLdt.toLocalTime())) {
-            days-- // Decrement a day
-            // Calculate duration from start time to end time + 24 hours
-            val duration = Duration.between(startLdt.toLocalTime(), endLdt.toLocalTime().plusHours(24))
-            hours = duration.toHours()
-            minutes = duration.toMinutes() % 60
-            seconds = duration.getSeconds() % 60
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            ModernDateTimeImpl.timeSpan(this, other)
         } else {
-            val duration = Duration.between(startLdt.toLocalTime(), endLdt.toLocalTime())
-            hours = duration.toHours()
-            minutes = duration.toMinutes() % 60
-            seconds = duration.getSeconds() % 60
+            LegacyDateTimeImpl.timeSpan(this, other)
         }
-
-        // Handle negative result if original order was reversed
-        if (isNegative) {
-            years = -years
-            months = -months
-            days = -days
-            hours = -hours
-            minutes = -minutes
-            seconds = -seconds
-        }
-
-        return TimeSpan(
-            years,
-            months,
-            days,
-            hours.toInt(),
-            minutes.toInt(),
-            seconds.toInt()
-        )
     }
 
 
@@ -274,32 +203,22 @@ class DateTime private constructor(
     }
 
     fun format(pattern: String): String {
-        val formatter = DateTimeFormatter.ofPattern(pattern)
-        return kotlin.runCatching {
-            formatter.format(this.toZonedDateTime())
-        }.getOrElse {
-            throw InvalidFormatException(dateString = pattern)
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            ModernDateTimeImpl.format(this, pattern)
+        } else {
+            LegacyDateTimeImpl.format(this, pattern)
         }
     }
 
-    fun toLocalDateTime(): LocalDateTime {
-        return LocalDateTime.of(year, month, day, hour, minute, second)
+    @androidx.annotation.RequiresApi(26)
+    fun toLocalDateTime(): java.time.LocalDateTime {
+        return ModernDateTimeImpl.toLocalDateTime(this)
+
     }
 
-    fun toZonedDateTime(): ZonedDateTime {
-        return ZonedDateTime.of(year, month, day, hour, minute, second, 0, ZoneId.of(timeZone))
-    }
-
-    private fun copy(updatedDate: LocalDateTime): DateTime {
-        return DateTime(
-            year = updatedDate.year,
-            month = updatedDate.monthValue,
-            day = updatedDate.dayOfMonth,
-            hour = updatedDate.hour,
-            minute = updatedDate.minute,
-            second = updatedDate.second,
-            timeZone = timeZone
-        )
+    @androidx.annotation.RequiresApi(26)
+    fun toZonedDateTime(): java.time.ZonedDateTime {
+        return ModernDateTimeImpl.toZonedDateTime(this)
     }
 
     class Builder {
@@ -312,21 +231,15 @@ class DateTime private constructor(
         fun setDay(day: Int) = apply { this.day = day }
 
         fun build(): DateTime {
-            val now = LocalDateTime.now()
-            val timeZone = ZoneId.systemDefault().id
-
-            val finalYear = year ?: now.year
-            val finalMonth = month ?: now.monthValue
-            val finalDay = day ?: now.dayOfMonth
-
+            val now = DateTime.now()
             return DateTime(
-                year = finalYear,
-                month = finalMonth,
-                day = finalDay,
+                year = year ?: now.year,
+                month = month ?: now.month,
+                day = day ?: now.day,
                 hour = now.hour,
                 minute = now.minute,
                 second = now.second,
-                timeZone = timeZone
+                timeZone = now.timeZone
             )
         }
     }
