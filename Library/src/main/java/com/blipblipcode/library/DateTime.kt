@@ -1,17 +1,17 @@
 package com.blipblipcode.library
 
 import android.content.Context
+import android.util.Log
 import com.blipblipcode.library.model.FormatType
 import com.blipblipcode.library.model.TimeSpan
 import com.blipblipcode.library.throwable.InvalidFormatException
-import com.jakewharton.threetenabp.AndroidThreeTen
-import org.threeten.bp.Duration
-import org.threeten.bp.Instant
-import org.threeten.bp.LocalDateTime
-import org.threeten.bp.Period
-import org.threeten.bp.ZoneId
-import org.threeten.bp.ZonedDateTime
-import org.threeten.bp.format.DateTimeFormatter
+import java.time.Instant
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 
 class DateTime private constructor(
     val year: Int,
@@ -59,8 +59,13 @@ class DateTime private constructor(
         )
 
 
-        fun init(context: Context) {
-            AndroidThreeTen.init(context)
+        @Deprecated(
+            message = "Initialization is no longer required. The library now uses native java.time.",
+            replaceWith = ReplaceWith(""),
+            level = DeprecationLevel.WARNING
+        )
+        fun init(@Suppress("UNUSED_PARAMETER") context: Context) {
+            Log.i("DateTime", "Initialization is no longer required. The library now uses native java.time.")
         }
 
         fun now(): DateTime {
@@ -93,7 +98,7 @@ class DateTime private constructor(
                         LocalDateTime.parse(dateString, formatter)
                     } else {
                         // Si el patrón solo tiene fecha, parseamos como LocalDate y convertimos a LocalDateTime (inicio del día)
-                        org.threeten.bp.LocalDate.parse(dateString, formatter).atStartOfDay()
+                        LocalDate.parse(dateString, formatter).atStartOfDay()
                     }
                 }.getOrNull()
             } ?: throw InvalidFormatException(dateString = dateString)

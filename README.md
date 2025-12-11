@@ -31,11 +31,9 @@ dependencyResolutionManagement {
 ```toml
 [versions]
 dateTime = "1.0.0"
-threetenabp = "1.4.4"
 
 [libraries]
 dateTime = { module = "com.github.LeandroLCD:DateTime", version.ref = "dateTime" }
-threetenabp = { module = "com.jakewharton.threetenabp:threetenabp", version.ref = "threetenabp" }
 ```
 
 ### 3. Agregar dependencias en `build.gradle.kts`
@@ -43,7 +41,6 @@ threetenabp = { module = "com.jakewharton.threetenabp:threetenabp", version.ref 
 ```kotlin
 dependencies {
     implementation(libs.dateTime)
-    implementation(libs.threetenabp)
 }
 ```
 
@@ -53,7 +50,7 @@ dependencies {
 class MyApp : Application() {
     override fun onCreate() {
         super.onCreate()
-        DateTime.init(this)
+        DateTime.init(this) //Deprecado en versiones recientes ya no se requiere inicialización.
     }
 }
 ```
@@ -170,7 +167,6 @@ try {
 ## 🛠️ Dependencias
 
 - [DateTime](https://github.com/LeandroLCD/DateTime)
-- [ThreeTenABP](https://github.com/JakeWharton/ThreeTenABP)
 
 ---
 
