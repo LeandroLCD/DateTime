@@ -13,7 +13,7 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        minSdk = 24
+        minSdk = 21
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         testInstrumentationRunnerArguments.put("useTestStorageService", "true")
         consumerProguardFiles("consumer-rules.pro")
@@ -36,12 +36,10 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
-        isCoreLibraryDesugaringEnabled = true
     }
     kotlin {
         compilerOptions {
             jvmTarget = JvmTarget.JVM_17
-            freeCompilerArgs.add("-XXLanguage:+PropertyParamAnnotationDefaultTargetMode")
         }
     }
 
@@ -64,8 +62,6 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
 
-    // Desugaring para soporte de java.time en API < 26
-    coreLibraryDesugaring(libs.desugar.jdk.libs)
 
     // JUnit Jupiter dependencies for unit testing
     testImplementation(libs.junit.jupiter.api)
@@ -79,6 +75,7 @@ dependencies {
 /**
  * Genera reporte JaCoCo a partir de las pruebas instrumentadas (androidTest)
  */
+
 tasks.register<JacocoReport>("jacocoAndroidTestReport") {
     dependsOn("connectedDebugAndroidTest")
 
@@ -125,7 +122,6 @@ tasks.register<JacocoReport>("jacocoAndroidTestReport") {
         executionData.setFrom(files(executionData.filter { it.exists() }))
     }
 }
-
 /**
  * Enlaza el reporte JaCoCo con Coveralls
  */
