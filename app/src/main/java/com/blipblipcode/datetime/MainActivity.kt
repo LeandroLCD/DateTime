@@ -21,7 +21,7 @@ import com.blipblipcode.library.model.FormatType
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        DateTime.init(this)
+        
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
