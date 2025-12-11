@@ -47,9 +47,9 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
 
-    implementation(libs.threetenabp)
-    //implementation(project(":Library"))
-    implementation(libs.dateTime)
+
+    implementation(project(":Library"))
+    //implementation(libs.dateTime)
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
