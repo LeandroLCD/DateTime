@@ -4,12 +4,11 @@
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/LeandroLCD/DateTime)
 ![GitHub last commit](https://img.shields.io/github/last-commit/LeandroLCD/DateTime)
 ![GitHub issues](https://img.shields.io/github/issues/LeandroLCD/DateTime)
-![Tests](https://img.shields.io/badge/tests-passing-brightgreen)
-[![CircleCI](https://dl.circleci.com/status-badge/img/gh/LeandroLCD/DateTime/tree/master.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/LeandroLCD/DateTime/tree/master)
+![![Android CI-CD](https://github.com/LeandroLCD/DateTime/actions/workflows/android-ci.yml/badge.svg)](https://github.com/LeandroLCD/DateTime/actions/workflows/android-ci.yml)
 
 
 
-Una librería ligera para trabajar con fechas y tiempos en **Android**, construida sobre [ThreeTenABP](https://github.com/JakeWharton/ThreeTenABP).  
+Una librería ligera para trabajar con fechas y tiempos en **Android**.  
 Proporciona una API sencilla para manipular, formatear y comparar fechas de manera segura.
 
 ## 🚀 Instalación
