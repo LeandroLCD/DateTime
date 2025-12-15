@@ -4,7 +4,7 @@
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/LeandroLCD/DateTime)
 ![GitHub last commit](https://img.shields.io/github/last-commit/LeandroLCD/DateTime)
 ![GitHub issues](https://img.shields.io/github/issues/LeandroLCD/DateTime)
-![![Android CI](https://github.com/LeandroLCD/DateTime/actions/workflows/android-ci.yml/badge.svg)](https://github.com/LeandroLCD/DateTime/actions/workflows/android-ci.yml)
+[![Android CI](https://github.com/LeandroLCD/DateTime/actions/workflows/android-ci.yml/badge.svg)](https://github.com/LeandroLCD/DateTime/actions/workflows/android-ci.yml)
 
 
 
