@@ -1,3 +1,5 @@
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.gradle.testing.jacoco.tasks.JacocoReport
 
@@ -5,6 +7,7 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.android.coveralls)
+    alias(libs.plugins.android.junit5)
     id("jacoco")
 }
 
@@ -33,6 +36,22 @@ android {
         }
     }
 
+    testOptions.unitTests.apply {
+        isReturnDefaultValues = true
+        all {
+            it.apply {
+                testLogging {
+                    exceptionFormat = TestExceptionFormat.FULL
+                    events =
+                        setOf(TestLogEvent.PASSED, TestLogEvent.FAILED, TestLogEvent.STANDARD_ERROR)
+                    showCauses = true
+                    showExceptions = true
+                    showStackTraces = true
+                }
+
+            }
+        }
+    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -67,9 +86,11 @@ dependencies {
     testImplementation(libs.junit.jupiter.api)
     testImplementation(libs.junit.jupiter.params)
     testRuntimeOnly(libs.junit.jupiter.engine)
+    testRuntimeOnly(libs.junit.platform.launcher)
 
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    testImplementation(kotlin("test"))
 }
 
 /**
