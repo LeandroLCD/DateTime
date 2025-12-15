@@ -1,21 +1,14 @@
 package com.blipblipcode.library
 
-import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
+import com.blipblipcode.library.model.DateTimeRange
 import com.blipblipcode.library.model.FormatType
 import com.blipblipcode.library.throwable.InvalidFormatException
-import junit.framework.TestCase.assertEquals
-import org.junit.Assert.assertThrows
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertThrows
+import org.junit.jupiter.api.Test
 
 
-class DateTimeAndroidTest {
-    private val applicationContext =  getInstrumentation().targetContext
-
-    @Before
-    fun setUp() {
-        DateTime.init(applicationContext)
-    }
+class DateTimeUnitTest {
 
     @Test
     fun shouldCreateDateTimeFromValidStringFormatYyyyMmDd() {
@@ -178,6 +171,82 @@ class DateTimeAndroidTest {
         assertEquals(2025, date.year)
         assertEquals(12, date.month)
         assertEquals(31, date.day)
+    }
+
+    @Test
+    fun shouldCalculateSpanBetweenStartAndEnd() {
+        /**GIVEN**/
+        val start = DateTime.fromString("2023-01-01")
+        val end = DateTime.fromString("2024-01-01")
+        val range = DateTimeRange.builder().from(start).to(end).build()
+
+        /**WHEN**/
+        val span = range.span()
+
+        /**THEN**/
+        assertEquals(1, span.years)
+        assertEquals(0, span.months)
+        assertEquals(0, span.days)
+    }
+
+    @Test
+    fun shouldCheckIfDateIsContainedInRange() {
+        /**GIVEN**/
+        val start = DateTime.fromString("2023-01-01")
+        val end = DateTime.fromString("2023-01-31")
+        val range = DateTimeRange.builder().from(start).to(end).build()
+        val dateInside = DateTime.fromString("2023-01-15")
+        val dateOutside = DateTime.fromString("2023-02-01")
+
+        /**WHEN**/
+        val isInside = range.contains(dateInside)
+        val isOutside = range.contains(dateOutside)
+
+        /**THEN**/
+        assertEquals(true, isInside)
+        assertEquals(false, isOutside)
+    }
+
+    @Test
+    fun shouldCheckIfRangesOverlap() {
+        /**GIVEN**/
+        val range1 = DateTimeRange.builder().from(DateTime.fromString("2023-01-01")).to(DateTime.fromString("2023-01-15")).build()
+        val range2 = DateTimeRange.builder().from(DateTime.fromString("2023-01-10")).to(DateTime.fromString("2023-01-20")).build()
+        val range3 = DateTimeRange.builder().from(DateTime.fromString("2023-02-01")).to(DateTime.fromString("2023-02-10")).build()
+
+        /**WHEN**/
+        val overlaps1 = range1.overlaps(range2)
+        val overlaps2 = range1.overlaps(range3)
+
+        /**THEN**/
+        assertEquals(true, overlaps1)
+        assertEquals(false, overlaps2)
+    }
+
+    @Test
+    fun shouldBuildRangeWithBuilder() {
+        /**GIVEN**/
+        val start = DateTime.fromString("2025-01-01")
+        val end = DateTime.fromString("2025-01-31")
+
+        /**WHEN**/
+        val range = DateTimeRange.builder().from(start).to(end).build()
+
+        /**THEN**/
+        assertEquals(start.toString(), range.start.toString())
+        assertEquals(end.toString(), range.end.toString())
+    }
+
+    @Test
+    fun shouldThrowExceptionForInvalidRange() {
+        /**GIVEN**/
+        val start = DateTime.fromString("2023-01-31")
+        val end = DateTime.fromString("2023-01-01")
+
+        /**WHEN**/ /**THEN**/
+        assertThrows(IllegalArgumentException::class.java) {
+            DateTimeRange.builder().from(start).to(end).build()
+        }
     }
 
 }

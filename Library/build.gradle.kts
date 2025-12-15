@@ -1,3 +1,5 @@
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.gradle.testing.jacoco.tasks.JacocoReport
 
@@ -5,6 +7,7 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.android.coveralls)
+    alias(libs.plugins.android.junit5)
     id("jacoco")
 }
 
@@ -13,7 +16,7 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        minSdk = 24
+        minSdk = 21
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         testInstrumentationRunnerArguments.put("useTestStorageService", "true")
         consumerProguardFiles("consumer-rules.pro")
@@ -33,15 +36,29 @@ android {
         }
     }
 
+    testOptions.unitTests.apply {
+        isReturnDefaultValues = true
+        all {
+            it.apply {
+                testLogging {
+                    exceptionFormat = TestExceptionFormat.FULL
+                    events =
+                        setOf(TestLogEvent.PASSED, TestLogEvent.FAILED, TestLogEvent.STANDARD_ERROR)
+                    showCauses = true
+                    showExceptions = true
+                    showStackTraces = true
+                }
+
+            }
+        }
+    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
-        isCoreLibraryDesugaringEnabled = true
     }
     kotlin {
         compilerOptions {
             jvmTarget = JvmTarget.JVM_17
-            freeCompilerArgs.add("-XXLanguage:+PropertyParamAnnotationDefaultTargetMode")
         }
     }
 
@@ -64,21 +81,22 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
 
-    // Desugaring para soporte de java.time en API < 26
-    coreLibraryDesugaring(libs.desugar.jdk.libs)
 
     // JUnit Jupiter dependencies for unit testing
     testImplementation(libs.junit.jupiter.api)
     testImplementation(libs.junit.jupiter.params)
     testRuntimeOnly(libs.junit.jupiter.engine)
+    testRuntimeOnly(libs.junit.platform.launcher)
 
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    testImplementation(kotlin("test"))
 }
 
 /**
  * Genera reporte JaCoCo a partir de las pruebas instrumentadas (androidTest)
  */
+
 tasks.register<JacocoReport>("jacocoAndroidTestReport") {
     dependsOn("connectedDebugAndroidTest")
 
@@ -125,7 +143,6 @@ tasks.register<JacocoReport>("jacocoAndroidTestReport") {
         executionData.setFrom(files(executionData.filter { it.exists() }))
     }
 }
-
 /**
  * Enlaza el reporte JaCoCo con Coveralls
  */
