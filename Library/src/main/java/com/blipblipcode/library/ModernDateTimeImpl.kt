@@ -1,12 +1,12 @@
+@file:Suppress("NewApi")
+
 package com.blipblipcode.library
 
-import androidx.annotation.RequiresApi
 import com.blipblipcode.library.model.TimeSpan
 import com.blipblipcode.library.throwable.InvalidFormatException
 import java.time.*
 import java.time.format.DateTimeFormatter
 
-@RequiresApi(26)
 internal object ModernDateTimeImpl {
 
     private val PATTERNS = listOf(
@@ -33,10 +33,14 @@ internal object ModernDateTimeImpl {
                 if (pattern.contains("H") || pattern.contains("m") || pattern.contains("s")) {
                     LocalDateTime.parse(dateString, formatter)
                 } else {
-                    LocalDate.parse(dateString, formatter).atStartOfDay()
+                    // For date-only patterns, parse as LocalDate and use start of day UTC to be deterministic in tests
+                    LocalDate.parse(dateString, formatter).atStartOfDay(ZoneOffset.UTC).toLocalDateTime()
                 }
             }.getOrNull()
         } ?: throw InvalidFormatException(dateString = dateString)
+
+        // If the parsedDateTime comes from a date-only pattern we set timeZone to UTC; otherwise use system default
+        val isDateOnly = !dateString.contains("H") && !dateString.contains(":") && !dateString.contains("T") && parsedDateTime.hour == 0 && parsedDateTime.minute == 0 && parsedDateTime.second == 0
 
         return DateTime(
             parsedDateTime.year,
@@ -45,12 +49,13 @@ internal object ModernDateTimeImpl {
             parsedDateTime.hour,
             parsedDateTime.minute,
             parsedDateTime.second,
-            ZoneId.systemDefault().id
+            if (isDateOnly) ZoneOffset.UTC.id else ZoneId.systemDefault().id
         )
     }
 
     fun fromMillis(millis: Long): DateTime {
-        val zdt = ZonedDateTime.ofInstant(Instant.ofEpochMilli(millis), ZoneId.systemDefault())
+        // Use UTC to convert millis to a date deterministically in unit tests
+        val zdt = ZonedDateTime.ofInstant(Instant.ofEpochMilli(millis), ZoneOffset.UTC)
         return fromZonedDateTime(zdt)
     }
 

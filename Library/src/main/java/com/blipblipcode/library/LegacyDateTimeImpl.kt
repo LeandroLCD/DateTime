@@ -4,6 +4,7 @@ import com.blipblipcode.library.model.TimeSpan
 import com.blipblipcode.library.throwable.InvalidFormatException
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.math.abs
 
 internal object LegacyDateTimeImpl {
 
@@ -33,7 +34,7 @@ internal object LegacyDateTimeImpl {
                     val calendar = Calendar.getInstance().apply { time = date }
                     return fromCalendar(calendar)
                 }
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 // Continue with next pattern
             }
         }
@@ -120,7 +121,7 @@ internal object LegacyDateTimeImpl {
         val diffMillis = endMillis - startMillis
 
         val isNegative = diffMillis < 0
-        val absDiffMillis = Math.abs(diffMillis)
+        val absDiffMillis = abs(diffMillis)
 
         // Cálculo simplificado para timespan usando milisegundos
         val totalDays = absDiffMillis / (24 * 60 * 60 * 1000L)

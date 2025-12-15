@@ -1,12 +1,13 @@
+@file:Suppress("NewApi")
+
 package com.blipblipcode.library
 
 import android.content.Context
-import android.os.Build
 import android.util.Log
 import com.blipblipcode.library.model.FormatType
 import com.blipblipcode.library.model.TimeSpan
-import com.blipblipcode.library.throwable.InvalidFormatException
 
+@Suppress("unused")
 class DateTime internal constructor(
     val year: Int,
     val month: Int,
@@ -34,8 +35,17 @@ class DateTime internal constructor(
             Log.i("DateTime", "Initialization is no longer required. The library now uses native APIs.")
         }
 
+        private fun useModernImpl(): Boolean {
+            return try {
+                Class.forName("java.time.LocalDate")
+                true
+            } catch (e: Throwable) {
+                false
+            }
+        }
+
         fun now(): DateTime {
-            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            return if (useModernImpl()) {
                 ModernDateTimeImpl.now()
             } else {
                 LegacyDateTimeImpl.now()
@@ -43,7 +53,7 @@ class DateTime internal constructor(
         }
 
         fun now(timeZone: String): DateTime {
-            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            return if (useModernImpl()) {
                 ModernDateTimeImpl.now(timeZone)
             } else {
                 LegacyDateTimeImpl.now(timeZone)
@@ -63,7 +73,7 @@ class DateTime internal constructor(
         }
 
         fun fromString(dateString: String): DateTime {
-            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            return if (useModernImpl()) {
                 ModernDateTimeImpl.fromString(dateString)
             } else {
                 LegacyDateTimeImpl.fromString(dateString)
@@ -71,7 +81,7 @@ class DateTime internal constructor(
         }
 
         fun fromMillis(millis: Long): DateTime {
-            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            return if (useModernImpl()) {
                 ModernDateTimeImpl.fromMillis(millis)
             } else {
                 LegacyDateTimeImpl.fromMillis(millis)
@@ -79,7 +89,7 @@ class DateTime internal constructor(
         }
 
         fun fromMillis(millis: Long, timeZone: String): DateTime {
-            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            return if (useModernImpl()) {
                 ModernDateTimeImpl.fromMillis(millis, timeZone)
             } else {
                 LegacyDateTimeImpl.fromMillis(millis, timeZone)
@@ -114,7 +124,7 @@ class DateTime internal constructor(
     }
 
     fun toMillis(): Long {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        return if (useModernImpl()) {
             ModernDateTimeImpl.toMillis(this)
         } else {
             LegacyDateTimeImpl.toMillis(this)
@@ -122,7 +132,7 @@ class DateTime internal constructor(
     }
 
     fun toMillis(zone: String): Long {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        return if (useModernImpl()) {
             ModernDateTimeImpl.toMillis(this, zone)
         } else {
             LegacyDateTimeImpl.toMillis(this, zone)
@@ -130,7 +140,7 @@ class DateTime internal constructor(
     }
 
     fun toMillisUTC(): Long {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        return if (useModernImpl()) {
             ModernDateTimeImpl.toMillisUTC(this)
         } else {
             LegacyDateTimeImpl.toMillisUTC(this)
@@ -138,7 +148,7 @@ class DateTime internal constructor(
     }
 
     fun addDays(days: Long): DateTime {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        return if (useModernImpl()) {
             ModernDateTimeImpl.addDays(this, days)
         } else {
             LegacyDateTimeImpl.addDays(this, days)
@@ -146,7 +156,7 @@ class DateTime internal constructor(
     }
 
     fun addMonths(months: Long): DateTime {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        return if (useModernImpl()) {
             ModernDateTimeImpl.addMonths(this, months)
         } else {
             LegacyDateTimeImpl.addMonths(this, months)
@@ -154,7 +164,7 @@ class DateTime internal constructor(
     }
 
     fun addYears(years: Long): DateTime {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        return if (useModernImpl()) {
             ModernDateTimeImpl.addYears(this, years)
         } else {
             LegacyDateTimeImpl.addYears(this, years)
@@ -162,7 +172,7 @@ class DateTime internal constructor(
     }
 
     fun addMinutes(minutes: Long): DateTime {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        return if (useModernImpl()) {
             ModernDateTimeImpl.addMinutes(this, minutes)
         } else {
             LegacyDateTimeImpl.addMinutes(this, minutes)
@@ -170,7 +180,7 @@ class DateTime internal constructor(
     }
 
     fun addSeconds(seconds: Long): DateTime {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        return if (useModernImpl()) {
             ModernDateTimeImpl.addSeconds(this, seconds)
         } else {
             LegacyDateTimeImpl.addSeconds(this, seconds)
@@ -178,7 +188,7 @@ class DateTime internal constructor(
     }
 
     fun timeSpan(other: DateTime): TimeSpan {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        return if (useModernImpl()) {
             ModernDateTimeImpl.timeSpan(this, other)
         } else {
             LegacyDateTimeImpl.timeSpan(this, other)
@@ -203,7 +213,7 @@ class DateTime internal constructor(
     }
 
     fun format(pattern: String): String {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        return if (useModernImpl()) {
             ModernDateTimeImpl.format(this, pattern)
         } else {
             LegacyDateTimeImpl.format(this, pattern)
@@ -231,7 +241,7 @@ class DateTime internal constructor(
         fun setDay(day: Int) = apply { this.day = day }
 
         fun build(): DateTime {
-            val now = DateTime.now()
+            val now = now()
             return DateTime(
                 year = year ?: now.year,
                 month = month ?: now.month,
@@ -244,4 +254,3 @@ class DateTime internal constructor(
         }
     }
 }
-
