@@ -2,7 +2,7 @@ name: Android CI
 
 on:
   push:
-    branches: [ master, develop ]
+    branches: [ develop ]
     paths:
       - 'Library/**'
       - '.github/workflows/**'
