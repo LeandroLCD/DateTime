@@ -3,8 +3,14 @@ name: Android CI
 on:
   push:
     branches: [ master, develop ]
+    paths:
+      - 'Library/**'
+      - '.github/workflows/**'
   pull_request:
     branches: [ master ]
+    paths:
+      - 'Library/**'
+      - '.github/workflows/**'
 
 jobs:
   build-and-test:
