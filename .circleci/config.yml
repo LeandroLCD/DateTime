@@ -1,20 +1,13 @@
-# CircleCI configuration for Android Instrumented Tests with JaCoCo + Coveralls
-# CircleCI configuration for Android Instrumented Tests + JaCoCo + Coveralls
+# CircleCI configuration for Android Unit Tests with JaCoCo
 version: 2.1
 
 orbs:
   android: circleci/android@3.1.0
 
 jobs:
-  android-instrumented-test:
-    parameters:
-      system-image:
-        type: string
-        default: system-images;android-34;google_apis;x86_64
-
+  unit-test:
     executor:
-      name: android/android_machine
-      resource_class: large
+      name: android/android-docker
       tag: 2024.11.1
 
     steps:
@@ -28,14 +21,11 @@ jobs:
       - android/restore_gradle_cache
 
       # -------------------------
-      # Aquí: arrancar emulador y ejecutar
-      # tests + jacoco report + upload
+      # Ejecutar tests unitarios y generar reporte de cobertura
       # -------------------------
-      - android/start_emulator_and_run_tests:
-          system_image: << parameters.system-image >>
-          # Ejecutamos tests, luego generamos reporte JaCoCo y subimos a Coveralls
-          test_command: |
-            ./gradlew  jacocoAndroidTestReport --no-daemon --stacktrace
+      - run:
+          name: Run Unit Tests and Generate JaCoCo Report
+          command: ./gradlew test jacocoTestReport --no-daemon --stacktrace
 
       - android/save_gradle_cache
 
@@ -44,11 +34,8 @@ jobs:
           name: Collect Test Results
           command: |
             mkdir -p ~/test-results/junit/
-            # Copia todos los archivos XML de resultados de androidTest
-            find . -type f \( \
-              -regex ".*/build/outputs/androidTest-results/.*xml" \
-              -o -regex ".*/build/outputs/connected_android_test_additional_output/.*xml" \
-            \) -exec cp {} ~/test-results/junit/ \;
+            # Copia todos los archivos XML de resultados de test
+            find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/test-results/junit/ \;
           when: always
 
       - store_test_results:
@@ -60,22 +47,18 @@ jobs:
 
       - store_artifacts:
           path: app/build/reports/jacoco
-          destination: jacoco-report
+          destination: jacoco-report-app
+
+      - store_artifacts:
+          path: Library/build/reports/jacoco
+          destination: jacoco-report-library
 
 workflows:
   test-and-coverage:
     jobs:
-      - android-instrumented-test:
-          matrix:
-            alias: android-instrumented-test-all
-            parameters:
-              system-image:
-                - system-images;android-34;google_apis;x86_64
-          name: android-instrumented-test-<<matrix.system-image>>
+      - unit-test:
+          name: unit-test
           filters:
             branches:
               only:
                 - master
-
-
-              
