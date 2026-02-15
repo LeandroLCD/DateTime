@@ -1,3 +1,4 @@
+import com.android.build.gradle.internal.crash.afterEvaluate
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -11,12 +12,18 @@ plugins {
 android {
     namespace = "com.blipblipcode.library"
     compileSdk = 36
-    version = "1.3.12"
+    version = "1.3.13"
     defaultConfig {
         minSdk = 21
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         testInstrumentationRunnerArguments["useTestStorageService"] = "true"
         consumerProguardFiles("consumer-rules.pro")
+    }
+
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+        }
     }
 
     buildTypes {
@@ -66,27 +73,22 @@ kotlin {
         jvmTarget = JvmTarget.JVM_17
     }
 }
-publishing {
-    publications {
-        create<MavenPublication>("release") {
-            groupId = "com.github.LeandroLCD"
-            artifactId = "Librery"
-            version = project.version.toString()
-        }
-    }
-}
-
 afterEvaluate {
-    val releaseComponent = components.findByName("release")
-    if (releaseComponent != null) {
-        publishing {
-            publications {
-                val pub = getByName("release") as MavenPublication
-                pub.from(releaseComponent)
+    publishing {
+        publications {
+            create<MavenPublication>("release") {
+                groupId = "com.github.LeandroLCD"
+                artifactId = "Librery"
+                version = project.version.toString()
+
+                val releaseComponent = components.findByName("release")
+                if (releaseComponent != null) {
+                    from(releaseComponent)
+                } else {
+                    logger.warn("Android 'release' component not found; maven publication won't include component artifacts.")
+                }
             }
         }
-    } else {
-        logger.warn("Android 'release' component not found; maven publication won't include component artifacts.")
     }
 }
 tasks.withType<Test> {
