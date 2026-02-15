@@ -1,5 +1,5 @@
 [versions]
-agp = "8.13.2"
+agp = "9.0.1"
 junitJupiterApi = "6.0.1"
 junitJupiterEngine = "6.0.1"
 junitJupiterParams = "6.0.1"

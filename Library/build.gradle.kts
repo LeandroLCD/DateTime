@@ -1,14 +1,11 @@
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.gradle.testing.jacoco.tasks.JacocoReport
 
 plugins {
     alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.android.coveralls)
     alias(libs.plugins.android.junit5)
-    id("jacoco")
+    `maven-publish`
 }
 
 android {
@@ -18,7 +15,7 @@ android {
     defaultConfig {
         minSdk = 21
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        testInstrumentationRunnerArguments.put("useTestStorageService", "true")
+        testInstrumentationRunnerArguments["useTestStorageService"] = "true"
         consumerProguardFiles("consumer-rules.pro")
     }
 
@@ -56,11 +53,6 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlin {
-        compilerOptions {
-            jvmTarget = JvmTarget.JVM_17
-        }
-    }
 
     testOptions {
         unitTests {
@@ -69,9 +61,33 @@ android {
         }
     }
 }
+kotlin {
+    compilerOptions {
+        jvmTarget = JvmTarget.JVM_17
+    }
+}
+publishing {
+    publications {
+        create<MavenPublication>("release") {
+            groupId = "com.github.LeandroLCD"
+            artifactId = "query"
+            version = project.version.toString()
+        }
+    }
+}
 
-jacoco {
-    toolVersion = "0.8.10"
+afterEvaluate {
+    val releaseComponent = components.findByName("release")
+    if (releaseComponent != null) {
+        publishing {
+            publications {
+                val pub = getByName("release") as MavenPublication
+                pub.from(releaseComponent)
+            }
+        }
+    } else {
+        logger.warn("Android 'release' component not found; maven publication won't include component artifacts.")
+    }
 }
 tasks.withType<Test> {
     useJUnitPlatform()
@@ -93,60 +109,4 @@ dependencies {
     testImplementation(kotlin("test"))
 }
 
-/**
- * Genera reporte JaCoCo a partir de las pruebas instrumentadas (androidTest)
- */
-
-tasks.register<JacocoReport>("jacocoAndroidTestReport") {
-    dependsOn("connectedDebugAndroidTest")
-
-    group = "Reporting"
-    description = "Generates JaCoCo coverage report for Android Instrumented Tests."
-
-    val buildDir = layout.buildDirectory
-
-    reports {
-        xml.required.set(true)
-        html.required.set(true)
-        html.outputLocation.set(file("$buildDir/reports/jacoco/html"))
-        xml.outputLocation.set(file("$buildDir/reports/jacoco/jacocoAndroidTestReport.xml"))
-    }
-
-    // Directorios de código fuente
-    sourceDirectories.setFrom(
-        files(
-            "src/main/java",
-            "src/main/kotlin"
-        )
-    )
-
-    // Clases compiladas del build de debug
-    classDirectories.setFrom(
-        files(
-            fileTree("${buildDir.get()}/intermediates/javac/debug") {
-                exclude("**/R.class", "**/R\$*.class", "**/BuildConfig.*", "**/Manifest*.*")
-            },
-            fileTree("${buildDir.get()}/tmp/kotlin-classes/debug") {
-                exclude("**/R.class", "**/R\$*.class", "**/BuildConfig.*", "**/Manifest*.*")
-            }
-        )
-    )
-
-    // Archivo de ejecución JaCoCo generado por las pruebas instrumentadas
-    executionData.setFrom(
-        fileTree(buildDir) {
-            include("**/outputs/code_coverage/*AndroidTest/connected_coverage*.ec*")
-        }
-    )
-
-    doFirst {
-        executionData.setFrom(files(executionData.filter { it.exists() }))
-    }
-}
-/**
- * Enlaza el reporte JaCoCo con Coveralls
- */
-tasks.named("coverallsJacoco") {
-    dependsOn("jacocoAndroidTestReport")
-}
 
