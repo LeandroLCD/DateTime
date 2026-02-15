@@ -11,7 +11,7 @@ plugins {
 android {
     namespace = "com.blipblipcode.library"
     compileSdk = 36
-
+    version = "1.3.12"
     defaultConfig {
         minSdk = 21
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -70,7 +70,7 @@ publishing {
     publications {
         create<MavenPublication>("release") {
             groupId = "com.github.LeandroLCD"
-            artifactId = "query"
+            artifactId = "Librery"
             version = project.version.toString()
         }
     }
